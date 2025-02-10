@@ -12,7 +12,7 @@ library(stringr)
 #install.packages("syuzhet")
 library(syuzhet)
 
-
+#clean the tweets
 clean_tweets <- function(x) {
   x %>%
     # Remove URLs
