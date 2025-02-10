@@ -1,3 +1,6 @@
+######## Complexity Measure##########
+
+#load libraries
 #install.packages(quanteda.textstats)
 library(quanteda.textstats)
 #install.packages(tidyverse)
@@ -11,6 +14,7 @@ library(tidytext)
 #install.packages("stringr")
 library(stringr)
 
+#Clean tweets 
 clean_tweets <- function(x) {
   x %>%
     # Remove URLs
@@ -37,7 +41,7 @@ clean_tweets <- function(x) {
 
 #the data can be accessed from the following link
 #https://www.kaggle.com/datasets/kapastor/democratvsrepublicantweets?resource=download
-#load the data 
+#load the dataset
 data <-read.csv("~/Downloads/ExtractedTweets.csv", comment.char="#")
 #create tweet_id
 data$Tweet_ID <- seq.int(nrow(data))
@@ -45,13 +49,14 @@ data$Tweet_ID <- seq.int(nrow(data))
 data <- data%>%
   mutate(clean_text = clean_tweets(Tweet))
 
-#convert to corpus
+#convert the tweet dataset to corpus
 tweet_corpus <- corpus(data$clean_text,docnames = data$Tweet_ID)
 #compute the readability scores
 readability_scores <- textstat_readability(
   tweet_corpus ,
   measure = "Flesch.Kincaid"
 )
+
 #convert the readability scores to a dataframe
 readability_scores <- readability_scores %>%
   mutate(document = as.integer(document))
@@ -68,13 +73,14 @@ ggplot(data, aes(x = Flesch.Kincaid, fill = Party)) +
   theme(legend.position = "top") +
   scale_fill_manual(values = c("Democrat" = "blue", "Republican" = "red")) +  # Blue for Dems, Red for Reps
   facet_wrap(~Party, ncol = 1)  # Stack facets vertically
+
 #summarise
 data %>%
   group_by(Party) %>%
   summarise(mean_Flesch_Kincaid = mean(Flesch.Kincaid, na.rm = TRUE),
             sd_Flesch_Kincaid = sd(Flesch.Kincaid, na.rm = TRUE),
             n = n())
-
+#t.test scores by party 
 t.test(Flesch.Kincaid ~ Party, data = data)
 
-load("data/data_corpus_tweets.rda")
+
